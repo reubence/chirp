@@ -9,6 +9,7 @@ import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { LoadingPage } from "~/components/Loading";
 
 dayjs.extend(relativeTime);
 
@@ -34,37 +35,37 @@ const CreatePostWizard = () => {
   );
 };
 
-const Home: NextPage = () => {
-  const user = useUser();
-  const { data, isLoading } = api.posts.getAll.useQuery();
-  if (isLoading) return <div>Loading...</div>;
-
-  if (!data) return <div>Something went wrong</div>;
-
-  type PostWithUser = RouterOutputs["posts"]["getAll"][number];
-  const PostView = (props: PostWithUser) => {
-    const { post, author } = props;
-    return (
-      <div className="flex gap-3 border-b border-slate-400 p-4" key={post.id}>
-        <Image
-          src={author.profilePircture}
-          alt={`@${author?.userName}'s profile`}
-          className="rounded-full"
-          width={56}
-          height={56}
-        />
-        <div className="flex flex-col">
-          <div className="flex gap-1 text-slate-300">
-            <span>{`@${author?.userName}`}</span>
-            <span className="font-thin">{` · ${dayjs(
-              post.createdAt
-            ).fromNow()}`}</span>
-          </div>
-          <span>{post.content}</span>
+type PostWithUser = RouterOutputs["posts"]["getAll"][number];
+const PostView = (props: PostWithUser) => {
+  const { post, author } = props;
+  return (
+    <div className="flex gap-3 border-b border-slate-400 p-4" key={post.id}>
+      <Image
+        src={author.profilePircture}
+        alt={`@${author?.userName}'s profile`}
+        className="rounded-full"
+        width={56}
+        height={56}
+      />
+      <div className="flex flex-col">
+        <div className="flex gap-1 text-slate-300">
+          <span>{`@${author?.userName}`}</span>
+          <span className="font-thin">{` · ${dayjs(
+            post.createdAt
+          ).fromNow()}`}</span>
         </div>
+        <span>{post.content}</span>
       </div>
-    );
-  };
+    </div>
+  );
+};
+
+const Home: NextPage = () => {
+  const { user, isLoaded: userLoaded } = useUser();
+  const { data, isLoading: postsLoaded } = api.posts.getAll.useQuery();
+  // Return empty div if user is not loaded yet
+  if (!userLoaded && !postsLoaded) return <div />;
+  if (postsLoaded) return <LoadingPage />;
 
   return (
     <>
@@ -78,7 +79,7 @@ const Home: NextPage = () => {
           <div className="flex border-b border-slate-400 p-4">
             {!user.isSignedIn ? (
               <div className="flex justify-center">
-                <SignInButton />
+                <SignOutButton />
               </div>
             ) : (
               <CreatePostWizard />
