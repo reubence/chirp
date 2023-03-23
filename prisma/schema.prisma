@@ -10,17 +10,12 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
-
-model Star {
-  id              Int       @default(autoincrement()) @id
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  name            String    @db.VarChar(255)
-  constellation   String    @db.VarChar(255)
-}
-
-model Example {
+model Post {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+
+    content String @db.VarChar(255)
+    authorId String
+
+    @@index([authorId])
 }
