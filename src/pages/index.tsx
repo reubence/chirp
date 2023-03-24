@@ -61,7 +61,7 @@ const PostView = (props: PostWithUser) => {
 };
 
 const Home: NextPage = () => {
-  const { user, isLoaded: userLoaded } = useUser();
+  const { isSignedIn, isLoaded: userLoaded } = useUser();
   const { data, isLoading: postsLoaded } = api.posts.getAll.useQuery();
   // Return empty div if user is not loaded yet
   if (!userLoaded && !postsLoaded) return <div />;
@@ -77,16 +77,16 @@ const Home: NextPage = () => {
       <main className="flex justify-center">
         <div className="h-screen w-full border-x border-slate-400 md:max-w-2xl">
           <div className="flex border-b border-slate-400 p-4">
-            {!user.isSignedIn ? (
+            {!isSignedIn ? (
               <div className="flex justify-center">
-                <SignOutButton />
+                <SignInButton />
               </div>
             ) : (
               <CreatePostWizard />
             )}
           </div>
           <div className="flex flex-col">
-            {[...data]?.map((fullPost) => (
+            {data?.map((fullPost) => (
               <PostView {...fullPost} key={fullPost.post.id} />
             ))}
           </div>
